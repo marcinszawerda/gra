@@ -60,7 +60,7 @@ class Platforma {
     };
 
     /// Klasy pochodne
-
+    // plat_zwykla to klasa reprezentująca zwykłą platformę, która nie porusza się i nie zmienia swojego stanu.
     class Plat_zwykla : public Platforma {
     public:
         Plat_zwykla(); /// Konstruktor domyślny
@@ -71,15 +71,15 @@ class Platforma {
         /// przesłonięcie oznacza nadpisanie metody w klasie pochodnej
     };
 
-    class plat_ruch : public Platforma {
+    class Plat_ruch : public Platforma {
         private:
         float mno_skok; /// mnożnik skoku platformy ruchomej
         float pred; /// prędkość platformy ruchomej
         float minX, maxX; /// granice ruchu platformy
 
     public:
-        plat_ruch(); /// Konstruktor domyślny
-        plat_ruch(const std::string& nazwa, float x, float y, float width, float height, float mno_skok, float pred, float minX, float maxX, HBITMAP bmp = NULL, COLORREF kol_zap = RGB(100, 180, 100));
+        Plat_ruch(); /// Konstruktor domyślny
+        Plat_ruch(const std::string& nazwa, float x, float y, float width, float height, float mno_skok, float pred, float minX, float maxX, HBITMAP bmp = NULL, COLORREF kol_zap = RGB(100, 180, 100));
         float getMnoS() const; /// getter mnożnika skoku
         void setMnoS(float noweMnoS); /// setter mnożnika skoku
         void rysuj(HDC memDC) const override; // Przesłonięcie metody rysuj
