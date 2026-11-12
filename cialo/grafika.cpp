@@ -119,3 +119,54 @@ void Plat_ruch::setMnoS(float noweMnoS) {
     mno_skok = noweMnoS; // Ustawia nową wartość mnożnika skoku platformy ruchomej
 }
 
+void Plat_ruch::rysuj(HDC memDC) const {
+    Platforma::rysuj(memDC); // Wywołanie metody rysującej z klasy bazowej
+    HBRUSH pasbrush = CreateSolidBrush(RGB(255, 215, 0)); // Tworzenie pędzla do rysowania pasów platformy ruchomej
+    RECT r = { (int)x, (int)y, (int)(x + width), (int)(y + 6) }; // Definiowanie prostokąta dla pierwszego pasa
+    FillRect(memDC, &r, pasbrush); // Wypełnianie prostokąta pierwszego pasa kolorem
+    DeleteObject(pasbrush); // Usuwanie pędzla po użyciu
+}
+
+void Plat_ruch::aktualizuj(float dt) {
+    x += pred * dt; // Aktualizacja pozycji platformy ruchomej na podstawie prędkości i czasu
+    if (x < minX) {
+        x = minX; // Ograniczenie pozycji do granicy minimalnej
+        pred = -pred; // Zmiana kierunku ruchu
+    } else if (x > maxX) {
+        x = maxX; // Ograniczenie pozycji do granicy maksymalnej
+        pred = -pred; // Zmiana kierunku ruchu
+    }
+}
+
+float Plat_ruch::pob_mno_Skok() const {
+    return mno_skok; // Zwraca wartość mnożnika skoku platformy ruchomej
+}
+std::string Plat_ruch::pob_typ() const {
+    return "Plat_ruch"; // Typ platformy ruchomej
+}
+
+Main_graf::Main_graf() : Main_graf(800, 600) {} // Wywołanie konstruktora parametrycznego z domyślnymi wymiarami okna
+
+Main_graf::Main_graf(int szer, int wys) 
+: szer_okna(szer), wys_okna(wys), tBitmap(NULL), posBitmap(NULL) {
+    srand((unsigned int)  time(NULL)); // Inicjalizacja generatora liczb losowych
+
+    tBitmap = (HBITMAP)LoadImage(NULL, L"tlo.bmp", IMAGE_BITMAP, szer_okna, wys_okna, LR_LOADFROMFILE); // Ładowanie bitmapy tła z pliku
+    posBitmap = (HBITMAP)LoadImage(NULL, L"postac.bmp", IMAGE_BITMAP, 40, 60, LR_LOADFROMFILE); // Ładowanie bitmapy postaci z pliku);
+
+    dodaj_szab_Plat("plat1.bmp", 170.f, 25.f, RGB(90, 190, 90));
+    dodaj_szab_Plat("plat2.bmp", 125.f, 25.f, RGB(70, 160, 140));
+    dodaj_szab_Plat("plat3.bmp", 90.f, 25.f, RGB(140, 170, 70));
+
+    gen_Poz(); // Generowanie pozycji platform
+}
+
+Main_graf::~Main_graf() {
+    czysc_Plat(); // Czyszczenie wektora platform
+    if (tBitmap) DeleteObject(tBitmap); // Usuwanie bitmapy tła
+    if (posBitmap) DeleteObject(posBitmap); // Usuwanie bitmapy postaci
+    for (auto& szab : grafika) {
+        if (szab.bitmap) DeleteObject(szab.bitmap); // Usuwanie bitmap szablonów platform
+    }
+}
+

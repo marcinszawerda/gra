@@ -101,7 +101,7 @@ class Platforma {
             std::vector<Platforma*> platformy; /// wektor przechowujący wskaźniki do obiektów typu Platforma
 
             void czysc_Plat();
-            void dodaj_szab_Plat(const char* plat_1, float width, float height, COLORREF kol_zap);
+            void dodaj_szab_Plat(const char* nazwa, float width, float height, COLORREF kol_zap);
 
         public:
             Main_graf(); /// Konstruktor domyślny
