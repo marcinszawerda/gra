@@ -27,7 +27,7 @@ class Platforma {
         /// Konstruktor domyślny
         Platforma();
         ///Konstruktor parametryczny
-        Platforma(const std::string& nazwa, float x, float y, float width, float height, HBITMAP bmp = NULL, COLORREF kol_zap = RGB(100, 180, 100));
+        Platforma(const std::string& nazwa, float x, float y, float width, float height, HBITMAP bmp, COLORREF kolor = RGB(100, 180, 100));
         virtual ~Platforma(); /// Destruktor wirtualny
 
         /// Metody dostępowe (gettery)
@@ -64,7 +64,7 @@ class Platforma {
     class Plat_zwykla : public Platforma {
     public:
         Plat_zwykla(); /// Konstruktor domyślny
-        Plat_zwykla(const std::string& nazwa, float x, float y, float width, float height, HBITMAP bmp = NULL, COLORREF kol_zap = RGB(100, 180, 100));
+        Plat_zwykla(const std::string& nazwa, float x, float y, float width, float height, HBITMAP bmp, COLORREF kolor);
         void rysuj(HDC memDC) const override; // Przesłonięcie metody rysuj
         float pob_mno_Skok() const override; // Przesłonięcie metody pob_mno_Skok
         std::string pob_typ() const override; // Przesłonięcie metody pob_typ
@@ -79,7 +79,7 @@ class Platforma {
 
     public:
         Plat_ruch(); /// Konstruktor domyślny
-        Plat_ruch(const std::string& nazwa, float x, float y, float width, float height, float mno_skok, float pred, float minX, float maxX, HBITMAP bmp = NULL, COLORREF kol_zap = RGB(100, 180, 100));
+        Plat_ruch(const std::string& nazwa, float x, float y, float width, float height, float mno_skok, float pred, float minX, float maxX, HBITMAP bmp, COLORREF kolor);
         float getMnoS() const; /// getter mnożnika skoku
         void setMnoS(float noweMnoS); /// setter mnożnika skoku
         void rysuj(HDC memDC) const override; // Przesłonięcie metody rysuj
@@ -101,7 +101,7 @@ class Platforma {
             std::vector<Platforma*> platformy; /// wektor przechowujący wskaźniki do obiektów typu Platforma
 
             void czysc_Plat();
-            void dodaj_szab_Plat(const char* nazwa, float width, float height, COLORREF kol_zap);
+            void dodaj_szab_Plat(const char* nazwa, float width, float height, COLORREF kolor);
 
         public:
             Main_graf(); /// Konstruktor domyślny
@@ -110,7 +110,8 @@ class Platforma {
 
             void dodaj_Plat(Platforma* plat); /// dodanie platformy do wektora
             void us_ost_Plat(); /// usunięcie ostatniej platformy z wektora
-            Platforma* znajdz_Plat_nazw(const std::string& nazwa, float X, float Y); /// wyszukiwanie platformy po nazwie i współrzędnych
+            Platforma* znajdz_Plat_nazw(const std::string& nazwa) const; /// wyszukiwanie platformy po nazwie i współrzędnych
+            void mod_Plat(const std::string& nazwa, float x, float y);
 
             void gen_Poz(); /// generowanie pozycji platform
             void aktualizuj(float dt); /// aktualizacja pozycji platform
