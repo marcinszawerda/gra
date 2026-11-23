@@ -114,8 +114,8 @@ int main() {
                 std::cerr << "[WYJATEK OPERACJI NA OBIEKCIE] " << e.what() << "\n";
             }
 
-            // Restart gry klawiszem [R] po utracie wszystkich żyć
-            if (gracz.getHp() <= 0 && (GetAsyncKeyState('R') & 0x8000)) {
+            // Restart gry i losowanie nowej mapy klawiszem [R] w dowolnym momencie
+            if (GetAsyncKeyState('R') & 0x0001) {
                 gracz.setHp(3);
                 grafika.gen_Poz();
                 gracz.ustaw_na_start(grafika.getPlatformy());
