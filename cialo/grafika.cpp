@@ -154,9 +154,9 @@ Main_graf::Main_graf(int szer, int wys)
     tBitmap = (HBITMAP)LoadImageA(NULL, "obrazy/tlo.bmp", IMAGE_BITMAP, szer_okna, wys_okna, LR_LOADFROMFILE); // Ładowanie bitmapy tła z pliku
     posBitmap = (HBITMAP)LoadImageA(NULL, "obrazy/postac.bmp", IMAGE_BITMAP, 40, 60, LR_LOADFROMFILE); // Ładowanie bitmapy postaci z pliku);
 
-    dodaj_szab_Plat("obrazy/plat1.bmp", 170.f, 25.f, RGB(90, 190, 90));
-    dodaj_szab_Plat("obrazy/plat2.bmp", 125.f, 25.f, RGB(70, 160, 140));
-    dodaj_szab_Plat("obrzy/plat3.bmp", 90.f, 25.f, RGB(140, 170, 70));
+    dodaj_szab_Plat("obrazy/plat_1.bmp", 170.f, 25.f, RGB(90, 190, 90));
+    dodaj_szab_Plat("obrazy/plat_2.bmp", 125.f, 25.f, RGB(70, 160, 140));
+    dodaj_szab_Plat("obrzy/plat_3.bmp", 90.f, 25.f, RGB(140, 170, 70));
 
     gen_Poz(); // Generowanie pozycji platform
 }
