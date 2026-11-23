@@ -156,7 +156,7 @@ Main_graf::Main_graf(int szer, int wys)
 
     dodaj_szab_Plat("obrazy/plat_1.bmp", 170.f, 25.f, RGB(90, 190, 90));
     dodaj_szab_Plat("obrazy/plat_2.bmp", 125.f, 25.f, RGB(70, 160, 140));
-    dodaj_szab_Plat("obrzy/plat_3.bmp", 90.f, 25.f, RGB(140, 170, 70));
+    dodaj_szab_Plat("obrazy/plat_3.bmp", 90.f, 25.f, RGB(140, 170, 70));
 
     gen_Poz(); // Generowanie pozycji platform
 }
