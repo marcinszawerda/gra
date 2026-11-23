@@ -60,3 +60,18 @@ przeciążenie operatora strumieniowego do wyświetlania informacji o platformie
 'bool operator<' - przeciążenie operatora porównania < do porównywania platform po współrzędnych x i y
 'std::ostream& operator<<' - przeciążenie operatora strumieniowego << do wyświetlania informacji o platformie
 
+
+
+**Pierwsze testy:**
+
+*Uruchamianie za pomocą komendy:*
+"g++ cialo/main.cpp cialo/grafika.cpp cialo/ruch.cpp -o ../output/main.exe -lgdi32
+../output/main.exe"
+- Generowanie planszy działa tworzy się kilka platform, pierwsza platforma to platforma zwykła oraz mieszanka platform zwykłych i ruchomych.
+- Model postaci się nie wczytuje tło się wczytuje. Generowane platformy mają różne wymiary, mnożnik skoków działa poprawnie. 
+- System żyć działa system tworzenia kolejnych platform nie działa prawdopodbnie do usunięcia (1 - tworzy platforme, 2 - usuwa, 3 - podnosi pierwszą platformę). 
+- Potenclajna zmiana systemu resetowania poziomu (Resetowanie będzie możliwe w każdym momencie a nie tylko w przypadku stracenia wszystkich punktów życia).
+
+*Uruchamianie za pomocą pliku main.exe:*
+- Generowanie platform działa właściwie, pierwsza platforma to platforma zwykła a dalsze to mieszanka zwykłych i ruchomych, model postaci i tło się nie wczytuje. 
+- Generowane platformy mają różne wymiary, mnożnik skoków działa poprawnie. Zderzając się z ruchomą platformą jesteśmy wystrzeliwywani wyżej.

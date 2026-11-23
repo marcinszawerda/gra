@@ -211,6 +211,7 @@ void Main_graf::dodaj_Plat(Platforma* nowaPlatforma) {
 }
 
 // 2. OPERACJA USUWANIA OBIEKTU (z rzucaniem wyjątku przy próbie usunięcia platformy startowej)
+
 void Main_graf::us_ost_Plat() {
     if (platformy.size() <= 1) {
         throw std::out_of_range("Nie mozna usunac pierwszej platformy startowej!");
@@ -220,6 +221,7 @@ void Main_graf::us_ost_Plat() {
     delete ostatnia;
     platformy.pop_back();
 }
+
 
 // 3. OPERACJA WYSZUKIWANIA OBIEKTU
 Platforma* Main_graf::znajdz_Plat_nazw(const std::string& szu_nazwa) const {
@@ -231,12 +233,14 @@ Platforma* Main_graf::znajdz_Plat_nazw(const std::string& szu_nazwa) const {
     throw std::runtime_error("Nie znaleziono platformy o nazwie: " + szu_nazwa);
 }
 
+
 // 4. OPERACJA MODYFIKACJI OBIEKTU
 void Main_graf::mod_Plat(const std::string& nazwa, float X, float Y) {
     Platforma* p = znajdz_Plat_nazw(nazwa);
     p->setPozycja(p->getX() + X, p->getY() + Y);
     std::cout << "[ZMODYFIKOWANO OBIEKT] " << *p << "\n";
 }
+
 
 void Main_graf::gen_Poz() {
     czysc_Plat();
