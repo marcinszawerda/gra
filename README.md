@@ -114,12 +114,85 @@ R	Reset poziomu i losowanie nowej mapy
 2	Usunięcie ostatniej platformy (operacja CRUD + test wyjątku)
 3	Modyfikacja pozycji platformy Plat_2 (operacja CRUD)
 ```
-## Opis testów
+---
 
-###Pierwszy test:
+## 4. Struktura katalogów projektu
+
+```text
+projekt/
+├── output/
+│   └── main.exe           # Skompilowany plik wykonywalny gry
+└── gra/
+    ├── README.md          # Dokumentacja projektu
+    ├── cialo/             # Kod źródłowy C++
+    │   ├── main.cpp       # Punkt wejścia, okno WinAPI, główna pętla gry
+    │   ├── grafika.h      # Deklaracje klas: Platforma, Plat_zwykla, Plat_ruch, Main_graf
+    │   ├── grafika.cpp    # Implementacja renderowania, CRUD i generowania mapy
+    │   ├── ruch.h         # Deklaracja klasy Gracz
+    │   ├── ruch.cpp       # Implementacja fizyki, kolizji AABB i systemu żyć
+    │   ├── punkty.h       # Deklaracja klasy Punkty
+    │   └── punkty.cpp     # Implementacja zliczania unikalnych platform
+    └── obrazy/            # Zasoby graficzne (24-bitowe mapy bitowe .bmp)
+        ├── tlo.bmp        # Tło początkowe
+        ├── tlo2.bmp       # Tło docelowe po przesunięciu mapy
+        ├── postac.bmp     # Grafika postaci gracza
+        ├── plat_1.bmp     # Tekstura platformy (wariant 1)
+        ├── plat_2.bmp     # Tekstura platformy (wariant 2)
+        └── plat_3.bmp     # Tekstura platformy (wariant 3)
+```
+
+## 5. Diagram relacji między klasami
+
+```text
+                  ┌──────────────────────┐
+                  │      Platforma       │ (klasa bazowa)
+                  └──────────┬───────────┘
+                             │ dziedziczenie publiczne
+             ┌───────────────┴───────────────┐
+             ▼                               ▼
+  ┌─────────────────────┐         ┌─────────────────────┐
+  │     Plat_zwykla     │         │      Plat_ruch      │
+  └─────────────────────┘         └─────────────────────┘
+
+  ┌─────────────────────┐  kompozycja (std::vector<Platforma*>)
+  │      Main_graf      │ ───────────────────────────────────────► Platforma
+  └─────────────────────┘  kompozycja (std::vector<Szab_graf>)
+             │             ───────────────────────────────────────► Szab_graf
+             │ używa w main.cpp
+             ▼
+  ┌─────────────────────┐  zależność (przekazywanie przez referencję)
+  │        Gracz        │ ───────────────────────────────────────► Punkty
+  └─────────────────────┘
+
+```
+## 6. Obsługa wyjątków  i walidacja danych
+
+Wszystkie operacje podatne na błędne dane wejściowe lub naruszenie stanu aplikacji zostały zabezpieczone mechanizmem try-catch:
+
+Typ wyjątku | Miejsce rzucenia | Warunek wywołania | Miejsce obsługi
+std::invalid_argumentPlatforma::setNazwa(), setWymiary(), Plat_ruch::setMnoS(), Gracz::Gracz(), Gracz::setHp(), Main_graf::dodaj_Plat() | Pusta nazwa, niedodatnie wymiary/mnożnik skoku, ujemna liczba żyć lub pusty wskaźnik nullptr | main.cpp (główny blok try-catch oraz pętla CRUD)
+std::out_of_rangePlatforma::setPozycja(), Main_graf::us_ost_Plat() | Próba ustawienia platformy poza granicami okna lub usunięcia ostatniej (startowej) platformy klawiszem 2 | main.cpp (pętla CRUD – komunikat w konsoli, gra działa dalej)
+std::runtime_errorMain_graf::dodaj_Plat(), Main_graf::znajdz_Plat_nazw(), Gracz::ustaw_na_start() | Próba dodania duplikatu platformy (operator==), brak szukanej platformy (np. modyfikacja usuniętej Plat_2 klawiszem 3) lub pusta mapa | main.cpp / Main_graf::gen_Poz()
+
+## 7. Zarządzanie pamięcią i zasobami systemowymi
+Dynamiczne obiekty platform (Platforma*): wszystkie obiekty tworzone operatorem new w Main_graf są zwalniane przez delete w metodach czysc_Plat(), us_ost_Plat(), przesun_Mape() (dla platform poza ekranem) oraz w destruktorze ~Main_graf(). Wirtualny destruktor virtual ~Platforma() gwarantuje poprawne wywołanie destruktorów klas pochodnych.
+
+Zasoby WinAPI / GDI: wszystkie uchwyty bitmap (HBITMAP), pędzle (HBRUSH) i konteksty pamięciowe (HDC) są zwalniane po użyciu za pomocą DeleteObject(), DeleteDC() oraz ReleaseDC(), co zapobiega wyciekom uchwytów GDI.
+
+## 8. Wymagania środowiskowe
+System operacyjny: Windows 10 / 11 (wymagane API Win32 / GDI).
+
+Kompilator: MinGW / TDM-GCC (g++, standard C++11 lub nowszy).
+
+Biblioteki zewnętrzne: brak – projekt korzysta wyłącznie ze standardowej biblioteki C++ oraz systemowej biblioteki gdi32 (linkowanej flagą -lgdi32).
+
+
+## 9. Opis testów
+
+### Pierwszy test:
 
 *Uruchamianie za pomocą komendy:*
-"g++ cialo/main.cpp cialo/grafika.cpp cialo/ruch.cpp -o ../output/main.exe -lgdi32
+- "g++ cialo/main.cpp cialo/grafika.cpp cialo/ruch.cpp -o ../output/main.exe -lgdi32
 ../output/main.exe"
 - Generowanie planszy działa tworzy się kilka platform, pierwsza platforma to platforma zwykła oraz mieszanka platform zwykłych i ruchomych.
 - Model postaci się nie wczytuje tło się wczytuje. Generowane platformy mają różne wymiary, mnożnik skoków działa poprawnie. 
@@ -130,12 +203,12 @@ R	Reset poziomu i losowanie nowej mapy
 - Generowanie platform działa właściwie, pierwsza platforma to platforma zwykła a dalsze to mieszanka zwykłych i ruchomych, model postaci i tło się nie wczytuje. 
 - Generowane platformy mają różne wymiary, mnożnik skoków działa poprawnie. Zderzając się z ruchomą platformą jesteśmy wystrzeliwywani wyżej.
 
-###Test drugi:
+### Test drugi:
 - Gra przestała działać błąd w pliku json
 
 
-###Test trzeci:
-"g++ cialo/main.cpp cialo/grafika.cpp cialo/ruch.cpp cialo/punkty.cpp -o ../output/main.exe -lgdi32
+### Test trzeci:
+- "g++ cialo/main.cpp cialo/grafika.cpp cialo/ruch.cpp cialo/punkty.cpp -o ../output/main.exe -lgdi32
 ../output/main.exe"
 #####gra uruchamia się poprawnie:
         *skakanie | działa*
@@ -145,3 +218,12 @@ R	Reset poziomu i losowanie nowej mapy
         *postać | nie do końca działa - usunięcie tła z modelu postaci powoduje nie ładowanie się go więc na szerokość i wysokość postaci jest szare tło*
         *przyciski do tworzenia, usuwania i modyfikacji | działa*
         *liczenie punktów | działa*
+
+## 10. Wnioski i planowane usprawnienia
+- Projekt spełnia założenia programowania obiektowego, łącząc logikę gry 2D z polimorfizmem, operacjami CRUD, przeciążaniem operatorów oraz obsługą wyjątków bez użycia gotowych silników graficznych. W ramach dalszego rozwoju aplikacji zaplanowano:
+
+*Zwiększenie minimalnego odstępu pionowego oraz dodanie detekcji nakładania się w generatorze przesun_Mape(), aby wyeliminować zbyt bliskie generowanie platform.*
+
+*Zastąpienie funkcji BitBlt funkcją TransparentBlt (biblioteka msimg32) dla rysowania postaci, aby uzyskać obsługę przezroczystego tła wokół modelu gracza.*
+
+*Dodanie zapisu najwyższego wyniku (High Score) do pliku tekstowego.*
