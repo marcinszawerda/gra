@@ -2,6 +2,7 @@
 #include <iostream>
 #include "grafika.h"
 #include "ruch.h"
+#include "punkty.h"
 
 bool running = true;
 
@@ -77,6 +78,8 @@ int main() {
         Main_graf grafika(800, 600);
         Gracz gracz(40.f, 60.f, 3);
 
+        Punkty punkty;
+
         // Ustawienie postaci na pierwszej platformie na starcie gry
         gracz.ustaw_na_start(grafika.getPlatformy());
         std::cout << gracz << "\n";
@@ -117,14 +120,33 @@ int main() {
             // Restart gry i losowanie nowej mapy klawiszem [R] w dowolnym momencie
             if (GetAsyncKeyState('R') & 0x0001) {
                 gracz.setHp(3);
+                punkty.reset();
                 grafika.gen_Poz();
                 gracz.ustaw_na_start(grafika.getPlatformy());
+                if (!grafika.getPlatformy().empty()) {
+                    punkty.oznacz_start(grafika.getPlatformy()[0]);
+                }
             }
+
+            grafika.aktualizuj(0.016f);
+            gracz.aktualizuj(0.016f, grafika.getPlatformy(), grafika.getWysOkna(), punkty);
+
+            // Gdy gracz przekroczy połowę ekranu (y < 300), przesuwamy mapę w dół
+            float polowaEkranu = grafika.getWysOkna() / 2.0f;
+            if (gracz.getY() < polowaEkranu) {
+                float dy = polowaEkranu - gracz.getY();
+                gracz.setPozycja(gracz.getX(), polowaEkranu);
+                grafika.przesun_Mape(dy);
+            }
+
+            grafika.rysuj(hdc, gracz.getX(), gracz.getY(), gracz.getWidth(), gracz.getHeight(), gracz.getHp(), punkty.getWynik());
 
             // Aktualizacja logiki świata i gracza oraz rysowanie klatki
             grafika.aktualizuj(0.016f);
-            gracz.aktualizuj(0.016f, grafika.getPlatformy(), grafika.getWysOkna());
-            grafika.rysuj(hdc, gracz.getX(), gracz.getY(), gracz.getWidth(), gracz.getHeight(), gracz.getHp());
+            gracz.aktualizuj(0.016f, grafika.getPlatformy(), grafika.getWysOkna(), punkty);
+            grafika.rysuj(hdc, gracz.getX(), gracz.getY(), gracz.getWidth(), gracz.getHeight(), gracz.getHp(), punkty.getWynik());
+
+            
 
             Sleep(16); // Ograniczenie do ~60 FPS
         }

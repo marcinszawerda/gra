@@ -1,6 +1,7 @@
 #ifndef RUCH_H
 #define RUCH_H
 
+#include "punkty.h"
 #include "grafika.h"
 #include <vector>
 #include <iostream>
@@ -39,7 +40,7 @@ class Gracz {
         /// Metody logiki gry, kolizji i fizyki
         bool przecina(const Platforma& plat) const; /// wykrywanie kolizji AABB z platformą
         void ustaw_na_start(const std::vector<Platforma*>& platformy); /// ustawienie gracza na pierwszej platformie
-        void aktualizuj(float dt, const std::vector<Platforma*>& platformy, int wys_okna); /// ruch, skok, grawitacja i utrata żyć
+        void aktualizuj(float dt, const std::vector<Platforma*>& platformy, int wys_okna, Punkty& punkty); /// ruch, skok, grawitacja i utrata żyć
 
         /// Przeciążone operatory (wymaganie na próg 10.0 pkt)
         Gracz& operator-=(int obrazenia); /// odejmowanie żyć

@@ -85,6 +85,10 @@ bool Platforma::operator<(const Platforma& inne) const {
     return this ->y < inne.y;
 }
 
+void Platforma::przesunY(float dy) {
+    y += dy;
+}
+
 std::ostream& operator<<(std::ostream& os, const Platforma& p){
     os << "[" << p.pob_typ() << "] Nazwa: " << p.nazwa << ", Poz: (" << p.x << ", " << p.y << "), Wym: (" << p.width << " x " << p.height << " Mnożnik skoku: x" << p.pob_mno_Skok() << ")";
     return os;
@@ -158,10 +162,11 @@ std::string Plat_ruch::pob_typ() const {
 Main_graf::Main_graf() : Main_graf(800, 600) {} // Wywołanie konstruktora parametrycznego z domyślnymi wymiarami okna
 
 Main_graf::Main_graf(int szer, int wys) 
-: szer_okna(szer), wys_okna(wys), tBitmap(NULL), posBitmap(NULL) {
+: szer_okna(szer), wys_okna(wys), tBitmap(NULL), tBitmap2(NULL), posBitmap(NULL), przesuniecie_tla(0.f), licznik_plat(1) {
     srand((unsigned int)  time(NULL)); // Inicjalizacja generatora liczb losowych
 
-   tBitmap = wczytajObraz("tlo.bmp", szer_okna, wys_okna);
+    tBitmap = wczytajObraz("tlo.bmp", szer_okna, wys_okna);
+    tBitmap2 = wczytajObraz("tlo2.bmp", szer_okna, wys_okna);
     posBitmap = wczytajObraz("postac.bmp", 40, 60);
 
     dodaj_szab_Plat("plat_1.bmp", 170.f, 25.f, RGB(90, 190, 90));
@@ -175,6 +180,7 @@ Main_graf::~Main_graf() {
     czysc_Plat(); // Czyszczenie wektora platform
     if (tBitmap) DeleteObject(tBitmap); // Usuwanie bitmapy tła
     if (posBitmap) DeleteObject(posBitmap); // Usuwanie bitmapy postaci
+    if (tBitmap2) DeleteObject(tBitmap2);
     for (auto& szab : grafika) {
         if (szab.bitmap) DeleteObject(szab.bitmap); // Usuwanie bitmap szablonów platform
     }
@@ -256,6 +262,9 @@ void Main_graf::gen_Poz() {
     czysc_Plat();
     std::cout << "\n--- GENEROWANIE NOWEGO POZIOMU ---\n";
 
+    przesuniecie_tla = 0.f; 
+    licznik_plat = 6;
+
     if (grafika.empty()) {
             std::cerr << "[BLAD GENEROWANIA] Brak szablonow platform w wektorze grafika!\n";
             return;
@@ -305,19 +314,87 @@ void Main_graf::aktualizuj(float dt) {
     }
 }
 
-void Main_graf::rysuj(HDC hdc, float graczX, float graczY, float graczW, float graczH, int zycia) const {
+void Main_graf::przesun_Mape(float dy) {
+    // Płynne przesuwanie tła z tlo.bmp na tlo2.bmp (zatrzymuje się, gdy tlo2.bmp zajmie cały ekran)
+    if (przesuniecie_tla < (float)wys_okna) {
+        przesuniecie_tla += dy * 0.5f; // 0.5f daje łagodny efekt paralaksy
+        if (przesuniecie_tla > (float)wys_okna) {
+            przesuniecie_tla = (float)wys_okna;
+        }
+    }
+
+    // 1. Przesuń wszystkie platformy w dół
+    for (Platforma* plat : platformy) {
+        plat->przesunY(dy);
+    }
+
+    // 2. Usuń platformy, które spadły poza dolną krawędź okna
+    for (auto it = platformy.begin(); it != platformy.end(); ) {
+        if ((*it)->getY() > (float)wys_okna + 40.f) {
+            delete *it;
+            it = platformy.erase(it);
+        } else {
+            ++it;
+        }
+    }
+
+    // 3. Znajdź najwyżej położoną platformę (najmniejsze Y)
+    float minY = (float)wys_okna;
+    for (const Platforma* plat : platformy) {
+        if (plat->getY() < minY) minY = plat->getY();
+    }
+
+    // 4. Generuj nowe platformy u góry ekranu, gdy zrobi się miejsce
+    while (minY > 90.f && !grafika.empty()) {
+        int losowaWersja = rand() % grafika.size();
+        const Szab_graf& sz = grafika[losowaWersja];
+
+        float noweY = minY - (float)(75 + rand() % 35); // odstęp 75–110 px w pionie
+        float maxStartX = (float)szer_okna - sz.width - 20.f;
+        float noweX = 20.f + (float)(rand() % (int)(maxStartX > 1.f ? maxStartX : 1.f));
+        std::string nazwa = "Plat_" + std::to_string(licznik_plat++);
+
+        try {
+            if (rand() % 2 == 0) {
+                dodaj_Plat(new Plat_zwykla(nazwa, noweX, noweY, sz.width, sz.height, sz.bitmap, sz.kol_zap));
+            } else {
+                float granMin = (noweX - 60.f > 10.f) ? noweX - 60.f : 10.f;
+                float granMax = (noweX + 60.f < (float)szer_okna - 10.f - sz.width)
+                                    ? noweX + 60.f
+                                    : (float)szer_okna - 10.f - sz.width;
+                dodaj_Plat(new Plat_ruch(nazwa, noweX, noweY, sz.width, sz.height,
+                                         1.35f, 55.f, granMin, granMax, sz.bitmap, sz.kol_zap));
+            }
+        } catch (const std::exception& e) {
+            std::cerr << "[BLAD GENEROWANIA] " << e.what() << "\n";
+        }
+        minY = noweY;
+    }
+}
+
+void Main_graf::rysuj(HDC hdc, float graczX, float graczY, float graczW, float graczH, int zycia, int punkty) const {
     HDC memDC = CreateCompatibleDC(hdc);
     HBITMAP memBitmap = CreateCompatibleBitmap(hdc, szer_okna, wys_okna);
     HGDIOBJ oldBmp = SelectObject(memDC, memBitmap);
 
     // 1. STAŁE TŁO
-    if (tBitmap) {
+    // 1. TŁO Z PRZEJŚCIEM tlo.bmp -> tlo2.bmp
+    int offset = (int)przesuniecie_tla;
+    if (tBitmap && offset < wys_okna) {
         HDC bgDC = CreateCompatibleDC(memDC);
         HGDIOBJ oldBg = SelectObject(bgDC, tBitmap);
-        BitBlt(memDC, 0, 0, szer_okna, wys_okna, bgDC, 0, 0, SRCCOPY);
+        BitBlt(memDC, 0, offset, szer_okna, wys_okna - offset, bgDC, 0, 0, SRCCOPY);
         SelectObject(bgDC, oldBg);
         DeleteDC(bgDC);
-    } else {
+    }
+    if (tBitmap2 && offset > 0) {
+        HDC bg2DC = CreateCompatibleDC(memDC);
+        HGDIOBJ oldBg2 = SelectObject(bg2DC, tBitmap2);
+        BitBlt(memDC, 0, offset - wys_okna, szer_okna, wys_okna, bg2DC, 0, 0, SRCCOPY);
+        SelectObject(bg2DC, oldBg2);
+        DeleteDC(bg2DC);
+    }
+    if (!tBitmap && !tBitmap2) {
         RECT bgRect = {0, 0, szer_okna, wys_okna};
         HBRUSH bgBrush = CreateSolidBrush(RGB(35, 40, 55));
         FillRect(memDC, &bgRect, bgBrush);
@@ -348,7 +425,7 @@ void Main_graf::rysuj(HDC hdc, float graczX, float graczY, float graczW, float g
     // 4. INTERFEJS UŻYTKOWNIKA
     SetBkMode(memDC, TRANSPARENT);
     SetTextColor(memDC, RGB(255, 255, 255));
-    std::string tekstZyc = "Zycia: " + std::to_string(zycia) + " | Klawisze: [1] Dodaj plat. [2] Usun [3] Modyfikuj Plat_2";
+    std::string tekstZyc = "Zycia: " + std::to_string(zycia) + " | Punkty: " + std::to_string(punkty) + " | Klawisze: [1] Dodaj plat. [2] Usun [3] Modyfikuj Plat_2 [R] Reset";
     TextOutA(memDC, 20, 15, tekstZyc.c_str(), (int)tekstZyc.length());
 
     HBRUSH lifeBrush = CreateSolidBrush(RGB(240, 60, 60));

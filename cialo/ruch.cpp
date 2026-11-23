@@ -1,4 +1,5 @@
 #include "ruch.h"
+#include "punkty.h"
 #include <windows.h>
 
 // Konstruktor domyślny (deleguje do parametrycznego)
@@ -56,7 +57,7 @@ void Gracz::ustaw_na_start(const std::vector<Platforma*>& platformy) {
 }
 
 // Główna aktualizacja ruchu, skoku, kolizji i upadku poza mapę
-void Gracz::aktualizuj(float dt, const std::vector<Platforma*>& platformy, int wys_okna) {
+void Gracz::aktualizuj(float dt, const std::vector<Platforma*>& platformy, int wys_okna, Punkty& punkty) {
     if (hp <= 0) return; // Gdy brak żyć, postać nie reaguje na sterowanie
 
     // 1. Ruch poziomy (klawisze A i D)
@@ -89,11 +90,13 @@ void Gracz::aktualizuj(float dt, const std::vector<Platforma*>& platformy, int w
     for (const Platforma* plat : platformy) {
         if (przecina(*plat)) {
             if (pred_Y > 0) {
-                y = plat->getY() - height; // Postaw gracza na górze platformy
+                y = plat->getY() - height;
                 pred_Y = 0.f;
                 na_ziemi = true;
-                akt_mno_skok = plat->pob_mno_Skok(); // Polimorficzne pobranie mnożnika skoku!
-            } else if (pred_Y < 0) {
+                akt_mno_skok = plat->pob_mno_Skok();
+                punkty.zalicz_Plat(plat); // <-- Zaliczenie nowej platformy!
+            }   
+            else if (pred_Y < 0) {
                 y = plat->getY() + plat->getHeight(); // Uderzenie głową w spód platformy
                 pred_Y = 0.f;
             }

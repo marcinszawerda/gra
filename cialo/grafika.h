@@ -41,6 +41,7 @@ class Platforma {
         void setNazwa(const std::string& nazwa); 
         void setPozycja(float noweX, float noweY); /// met
         void setWymiary(float now_width, float now_height);
+        void przesunY(float dy); /// przesuwa platformę w dół podczas ruchu kamery w górę
 
         virtual void rysuj(HDC memDC) const;
         
@@ -97,6 +98,9 @@ class Platforma {
             int wys_okna; /// wysokość okna
             HBITMAP tBitmap; /// uchwyt do bitmapy
             HBITMAP posBitmap; /// uchwyt do starej bitmapy
+            HBITMAP tBitmap2; /// uchwyt do drugiego tła (tlo2.bmp)
+            float przesuniecie_tla; /// postęp przejścia z tlo.bmp na tlo2.bmp
+            int licznik_plat; /// licznik do nadawania unikalnych nazw kolejnym platformom
             std::vector<Szab_graf> grafika; /// wektor przechowujący obiekty typu Szab_graf
             std::vector<Platforma*> platformy; /// wektor przechowujący wskaźniki do obiektów typu Platforma
 
@@ -117,6 +121,9 @@ class Platforma {
             void aktualizuj(float dt); /// aktualizacja pozycji platform
             void rysuj(HDC hdc, float graczX, float graczY, float graczW, float graczH, int hp) const; /// rysowanie platform i gracza
         
+            void przesun_Mape(float dy); /// przesuwa świat w dół i generuje nowe platformy u góry
+            void rysuj(HDC hdc, float graczX, float graczY, float graczW, float graczH, int hp, int punkty) const;
+
             const std::vector<Platforma*>& getPlatformy() const; /// getter wektora platform
             int getWysOkna() const; /// getter wysokości okna
         };
