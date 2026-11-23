@@ -161,12 +161,12 @@ Main_graf::Main_graf(int szer, int wys)
 : szer_okna(szer), wys_okna(wys), tBitmap(NULL), posBitmap(NULL) {
     srand((unsigned int)  time(NULL)); // Inicjalizacja generatora liczb losowych
 
-    tBitmap = (HBITMAP)LoadImageA(NULL, "obrazy/tlo.bmp", IMAGE_BITMAP, szer_okna, wys_okna, LR_LOADFROMFILE); // Ładowanie bitmapy tła z pliku
-    posBitmap = (HBITMAP)LoadImageA(NULL, "obrazy/postac.bmp", IMAGE_BITMAP, 40, 60, LR_LOADFROMFILE); // Ładowanie bitmapy postaci z pliku);
+   tBitmap = wczytajObraz("tlo.bmp", szer_okna, wys_okna);
+    posBitmap = wczytajObraz("postac.bmp", 40, 60);
 
-    dodaj_szab_Plat("obrazy/plat_1.bmp", 170.f, 25.f, RGB(90, 190, 90));
-    dodaj_szab_Plat("obrazy/plat_2.bmp", 125.f, 25.f, RGB(70, 160, 140));
-    dodaj_szab_Plat("obrazy/plat_3.bmp", 90.f, 25.f, RGB(140, 170, 70));
+    dodaj_szab_Plat("plat_1.bmp", 170.f, 25.f, RGB(90, 190, 90));
+    dodaj_szab_Plat("plat_2.bmp", 125.f, 25.f, RGB(70, 160, 140));
+    dodaj_szab_Plat("plat_3.bmp", 90.f, 25.f, RGB(140, 170, 70));
 
     gen_Poz(); // Generowanie pozycji platform
 }
@@ -189,7 +189,7 @@ void Main_graf::czysc_Plat() {
 
 void Main_graf::dodaj_szab_Plat(const char* plat_1, float width, float height, COLORREF kolor) {
     Szab_graf sz;
-    sz.bitmap = (HBITMAP)LoadImageA(NULL, plat_1, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+    sz.bitmap =  wczytajObraz(plat_1,  0, 0);
     sz.kol_zap = kolor;
 
     if (sz.bitmap) {
