@@ -75,3 +75,7 @@ przeciążenie operatora strumieniowego do wyświetlania informacji o platformie
 *Uruchamianie za pomocą pliku main.exe:*
 - Generowanie platform działa właściwie, pierwsza platforma to platforma zwykła a dalsze to mieszanka zwykłych i ruchomych, model postaci i tło się nie wczytuje. 
 - Generowane platformy mają różne wymiary, mnożnik skoków działa poprawnie. Zderzając się z ruchomą platformą jesteśmy wystrzeliwywani wyżej.
+
+Test drugi:
+
+- Gra przestała działać błąd w pliku json

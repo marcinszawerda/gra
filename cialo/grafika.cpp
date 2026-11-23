@@ -3,6 +3,16 @@
 #include <ctime>
 #include <algorithm>
 
+static HBITMAP wczytajObraz(const std::string& nazwaPliku, int szer, int wys) {
+    std::string sciezka1 = "obrazy/" + nazwaPliku;
+    HBITMAP bmp = (HBITMAP)LoadImageA(NULL, sciezka1.c_str(), IMAGE_BITMAP, szer, wys, LR_LOADFROMFILE);
+    if (!bmp) {
+        std::string sciezka2 = "../gra/obrazy/" + nazwaPliku;
+        bmp = (HBITMAP)LoadImageA(NULL, sciezka2.c_str(), IMAGE_BITMAP, szer, wys, LR_LOADFROMFILE);
+    }
+    return bmp;
+}
+
 Platforma::Platforma() : nazwa(""), x(0.f), y(0.f), width(100.f), height(25.f), bitmap(NULL), kol_zap(RGB(100, 180, 100)) {}
 
 Platforma::Platforma(const std:: string& nazwa, float x, float y, float width, float height, HBITMAP bmp, COLORREF kolor) 
