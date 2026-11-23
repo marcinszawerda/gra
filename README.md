@@ -210,7 +210,7 @@ Biblioteki zewnętrzne: brak – projekt korzysta wyłącznie ze standardowej bi
 ### Test trzeci:
 - "g++ cialo/main.cpp cialo/grafika.cpp cialo/ruch.cpp cialo/punkty.cpp -o ../output/main.exe -lgdi32
 ../output/main.exe"
-#####gra uruchamia się poprawnie:
+##### gra uruchamia się poprawnie:
         *skakanie | działa*
         *reset | działa*
         *zmiana tła | działa*
