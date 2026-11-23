@@ -113,7 +113,7 @@ R	Reset poziomu i losowanie nowej mapy
 1	Dodanie nowej platformy (operacja CRUD)
 2	Usunięcie ostatniej platformy (operacja CRUD + test wyjątku)
 3	Modyfikacja pozycji platformy Plat_2 (operacja CRUD)
-
+```
 ## Opis testów
 
 ###Pierwszy test:
